@@ -1,13 +1,13 @@
 import os
 import torch
-from models import PatchTST
+from models import DualSG
 
 
 class Exp_Basic(object):
     def __init__(self, args):
         self.args = args
         self.model_dict = {
-            'PatchTST': PatchTST,
+            'DualSG': DualSG,
 
         }
 

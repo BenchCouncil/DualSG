@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# 定义要遍历的 LLM 模型列表
-# llm_models=("LLAMA2" "LLAMA3" "BERT" "DeepSeek" "QWEN")
-llm_models=("Deepseek" "QWEN")
+llm_models=("LLAMA2" "LLAMA3" "BERT" "DeepSeek" "QWEN")
 
-# 固定参数
-model_name=PatchTST
+model_name=DualSG
 llama_layers=12
 batch_size=128
 d_model=32
@@ -16,18 +13,15 @@ top_k=10
 adjsut=0
 learning_rate=0.001
 
-# 可选值
 use_fullmodel_values=(0)
 text_cd_values=(1)
 
-# 开始循环
 for llm_model in "${llm_models[@]}"; do
   for use_fullmodel in "${use_fullmodel_values[@]}"; do
     for text_cd in "${text_cd_values[@]}"; do
 
       echo "=== Running model: $llm_model | use_fullmodel=$use_fullmodel | text_cd=$text_cd ==="
 
-      # 第一次 run.py 调用（pred_len=96，seq_len=720）
       python -u run.py \
         --task_name long_term_forecast \
         --is_training 1 \
@@ -66,7 +60,6 @@ for llm_model in "${llm_models[@]}"; do
         --adjust $adjsut \
         --itr 1
 
-      # 第二次 run.py 调用（pred_len=192，seq_len=336）
       python -u run.py \
         --task_name long_term_forecast \
         --is_training 1 \
@@ -105,7 +98,6 @@ for llm_model in "${llm_models[@]}"; do
         --adjust $adjsut \
         --itr 1
 
-      # 第三次 run.py 调用（pred_len=336，seq_len=336）
       python -u run.py \
         --task_name long_term_forecast \
         --is_training 1 \
@@ -144,7 +136,6 @@ for llm_model in "${llm_models[@]}"; do
         --adjust $adjsut \
         --itr 1
 
-      # 第四次 run.py 调用（pred_len=720，seq_len=720）
       python -u run.py \
         --task_name long_term_forecast \
         --is_training 1 \

@@ -1,12 +1,10 @@
 #!/bin/bash
 
-# 定义要遍历的列表
 # seq_len_list=(96 192 336 512 720)
 use_fullmodel_values=(1)
 text_cd_values=(1)
 
-# 定义固定参数
-model_name=PatchTST
+model_name=DualSG
 llama_layers=12
 batch_size=128
 d_model=32
@@ -19,13 +17,9 @@ top_k=10
 adjsut=0
 learning_rate=0.001
 
-# 遍历 seq_len 列表
-# 遍历 use_fullmodel 的值
 for use_fullmodel in "${use_fullmodel_values[@]}"; do
-    # 遍历 text_cd 的值
     for text_cd in "${text_cd_values[@]}"; do
 
-        # 第一个 run.py 调用
         python -u run.py \
           --task_name long_term_forecast \
           --is_training 1 \
@@ -102,7 +96,6 @@ for use_fullmodel in "${use_fullmodel_values[@]}"; do
           --adjust $adjsut \
           --itr 1
 
-        # 第三个 run.py 调用
         python -u run.py \
           --task_name long_term_forecast \
           --is_training 1 \
@@ -141,7 +134,6 @@ for use_fullmodel in "${use_fullmodel_values[@]}"; do
           --adjust $adjsut \
           --itr 1
 
-        # 第四个 run.py 调用
         python -u run.py \
           --task_name long_term_forecast \
           --is_training 1 \

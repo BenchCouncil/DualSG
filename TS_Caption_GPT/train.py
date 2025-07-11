@@ -70,18 +70,18 @@ if __name__ == '__main__':
             torch.backends.mps.empty_cache()
         elif args.gpu_type == 'cuda':
             torch.cuda.empty_cache()
-    else:
-        setting = '{}_batch_size{}_epochs{}_dim{}'.format(args.data, args.batch_size, args.epochs, args.text_dim)
-        exp = Exp_time_caption(args)
-        x = [[1.0000, 0.3676, 0.1830, 0.0182, 0.0000, 0.7867, 0.5326, 0.0847, 0.7080, 0.7594, 0.1922, 0.7247], [1.0000, 0.3676, 0.1830, 0.0182, 0.0000, 0.7867, 0.5326, 0.0847, 0.7080, 0.7594, 0.1922, 0.7247]]
-        x_tensor = torch.tensor(x, dtype=torch.float32)
+    # else:
+    #     setting = '{}_batch_size{}_epochs{}_dim{}'.format(args.data, args.batch_size, args.epochs, args.text_dim)
+    #     exp = Exp_time_caption(args)
+    #     x = [[1.0000, 0.3676, 0.1830, 0.0182, 0.0000, 0.7867, 0.5326, 0.0847, 0.7080, 0.7594, 0.1922, 0.7247], [1.0000, 0.3676, 0.1830, 0.0182, 0.0000, 0.7867, 0.5326, 0.0847, 0.7080, 0.7594, 0.1922, 0.7247]]
+    #     x_tensor = torch.tensor(x, dtype=torch.float32)
 
-        # x_min = torch.min(x_tensor, dim=1, keepdim=True)[0]
-        # x_max = torch.max(x_tensor, dim=1, keepdim=True)[0]
+    #     # x_min = torch.min(x_tensor, dim=1, keepdim=True)[0]
+    #     # x_max = torch.max(x_tensor, dim=1, keepdim=True)[0]
 
-        # x_norm = (x_tensor - x_min) / (x_max - x_min)
-        x_norm = x_tensor.unsqueeze(-1)
+    #     # x_norm = (x_tensor - x_min) / (x_max - x_min)
+    #     x_norm = x_tensor.unsqueeze(-1)
 
-        y = exp.generate(x_norm, max_length=40, test=args.is_training, setting=setting)
+    #     y = exp.generate(x_norm, max_length=40, test=args.is_training, setting=setting)
 
-        print(y)
+    #     print(y)

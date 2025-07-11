@@ -3,8 +3,8 @@ import os
 import torch
 import torch.backends
 from exp.exp_long_term_forecasting import Exp_Long_Term_Forecast
-
 from exp.exp_short_term_forecasting import Exp_Short_Term_Forecast
+import time
 
 
 from utils.print_args import print_args
@@ -185,31 +185,14 @@ if __name__ == '__main__':
         for ii in range(args.itr):
             # setting record of experiments
             exp = Exp(args)  # set experiments
-            # setting = '{}_{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_expand{}_dc{}_fc{}_eb{}_dt{}_{}_{}'.format(
-            #     args.task_name,
-            #     args.model_id,
-            #     args.model,
-            #     args.data,
-            #     args.features,
-            #     args.seq_len,
-            #     args.label_len,
-            #     args.pred_len,
-            #     args.d_model,
-            #     args.n_heads,
-            #     args.e_layers,
-            #     args.d_layers,
-            #     args.d_ff,
-            #     args.expand,
-            #     args.d_conv,
-            #     args.factor,
-            #     args.embed,
-            #     args.distil,
-            #     args.des, ii)
             setting = '{}_{}_{}_{}_{}_CD{}_use_fullmodel{}_{}'.format(args.task_name, args.model_id, args.model, args.llm_model, args.data, args.text_cd, args.use_fullmodel, args.prompt)
 
 
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+            start_time_train = time.time()
             exp.train(setting)
+            end_time_train = time.time()
+            print(f"⏱️ Training time: {end_time_train - start_time_train:.2f} seconds")
 
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.test(setting)
@@ -219,26 +202,6 @@ if __name__ == '__main__':
                 torch.cuda.empty_cache()
     else:
         ii = 0
-        # setting = '{}_{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_expand{}_dc{}_fc{}_eb{}_dt{}_{}_{}'.format(
-        #     args.task_name,
-        #     args.model_id,
-        #     args.model,
-        #     args.data,
-        #     args.features,
-        #     args.seq_len,
-        #     args.label_len,
-        #     args.pred_len,
-        #     args.d_model,
-        #     args.n_heads,
-        #     args.e_layers,
-        #     args.d_layers,
-        #     args.d_ff,
-        #     args.expand,
-        #     args.d_conv,
-        #     args.factor,
-        #     args.embed,
-        #     args.distil,
-        #     args.des, ii)
         setting = '{}_{}_{}_{}_{}_CD{}_use_fullmodel{}_{}'.format(args.task_name, args.model_id, args.model, args.llm_model, args.data, args.text_cd, args.use_fullmodel, args.prompt)
 
 

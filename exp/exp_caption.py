@@ -256,17 +256,14 @@ class Exp_time_caption(object):
         
         if test==2:
             # print('loading Time Series Caption model')
-            self.model.load_state_dict(torch.load('/root/daye/TSCaption/TS_Caption_GPT/checkpoints/timecaption_batch_size32_epochs100_dim768/checkpoint.pth'))
+            self.model.load_state_dict(torch.load('TS_Caption_GPT/checkpoints/timecaption_batch_size32_epochs100_dim768/checkpoint.pth'))
             
         self.model.eval()
         with torch.no_grad():
-            # 生成token_ids
             token_ids = self.model.generate(x_batch, max_length)
             
-            # 解码为文本
             captions = []
             for ids in token_ids:
-                # 跳过特殊token并解码
                 caption = self.model.decoder.tokenizer.decode(
                     ids.cpu().numpy(),
                     skip_special_tokens=True,
