@@ -52,7 +52,7 @@ If you find our work helpful, please consider citing us:
 ```bibtex
 @inproceedings{da2025dualsg,
   title={DualSG: A Dual-Stream Explicit Semantic-Guided Multivariate Time Series Forecasting Framework},
-  author={},
+  author={Kuiye Ding and Fanda Fan and Yao Wang and Ruijie jian and Xiaorui Wang and Luqi Gong and Yishan Jiang and Chunjie Luo an Jianfeng Zhan},
   booktitle={ACM MM},
   year={2025}
 }
