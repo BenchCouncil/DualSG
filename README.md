@@ -1,11 +1,6 @@
 # DualSG: A Dual-Stream Explicit Semantic-Guided Multivariate Time Series Forecasting Framework
 
-This is the official PyTorch implementation of our **ACM MM 2025** paper:
-
-> **DualSG: A Dual-Stream Explicit Semantic-Guided Multivariate Time Series Forecasting Framework**  
-> 📄 [Paper](./TODO_LINK_TO_PAPER.pdf)
-
----
+[![arXiv](https://img.shields.io/badge/arXiv-2507.21830-b31b1b.svg)](https://arxiv.org/abs/2507.21830)
 
 ## 🚀 Highlights
 
