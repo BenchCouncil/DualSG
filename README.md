@@ -1,6 +1,6 @@
 # DualSG: A Dual-Stream Explicit Semantic-Guided Multivariate Time Series Forecasting Framework
 
-[![arXiv](https://img.shields.io/badge/arXiv-2507.21830-b31b1b.svg)](https://arxiv.org/abs/2507.21830)
+[![arXiv](https://img.shields.io/badge/arXiv-2507.21830-8bc34a.svg)](https://arxiv.org/abs/2507.21830)
 
 ## 🚀 Highlights
 
