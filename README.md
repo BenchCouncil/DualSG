@@ -12,9 +12,9 @@
 
 ## 🗂️ Project Structure
 ```
-├── models/ # Core model logic (DualSG, GPT2, etc.)
+├── models/ 
 ├── exp/ # Experiment runners
-├── data_provider/ # Dataset loaders (ETT, PEMS, M4, etc.)
+├── data_provider/ # Dataset loaders
 ├── layers/ # Transformer components
 ├── utils/ # Tools, losses, metrics
 ├── TS_Caption_GPT/ # Time-aware GPT2 decoder and checkpoints
