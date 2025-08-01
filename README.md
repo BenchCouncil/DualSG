@@ -54,3 +54,10 @@ If you find our work helpful, please consider citing us:
 ```
 # 🙌 Acknowledgements
 
+All the experiment datasets are public, and we obtain them from the following links:
+
+- Time-Series-Library: https://github.com/thuml/Time-Series-Library/.
+
+- TFB: https://github.com/decisionintelligence/TFB.
+
+- TimeMixer: https://github.com/kwuking/TimeMixer.
