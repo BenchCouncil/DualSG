@@ -34,7 +34,7 @@ pip install -r requirements.txt
 Place your datasets under ./dataset/. See data_provider/ for supported formats.
 
 # 🧪 Usage
-🔢 Long-term Forecasting (PatchTST + DualSG)
+🔢 Long-term Forecasting
 ```bash
 bash DualSG/scripts/DualSG/DualSG_ETTh1.sh
 ```
