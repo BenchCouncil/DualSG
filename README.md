@@ -33,6 +33,10 @@ pip install -r requirements.txt
 ```
 Place your datasets under ./dataset/. See data_provider/ for supported formats.
 
+Please download the weights from the link below and place them in the path TS_Caption_GPT/checkpoints/.
+
+https://drive.google.com/file/d/1h5IaCC41lM-sHJbf9-2w192LUlMv9BCS/view?usp=sharing
+
 # 🧪 Usage
 🔢 Long-term Forecasting
 ```bash
