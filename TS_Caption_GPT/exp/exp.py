@@ -49,12 +49,9 @@ class Exp_time_caption(object):
     #     return f"[BOS] {text} [EOS]"
     
     def preprocess_caption(self, text):
-        # 规范化处理
         text = text.strip().lower()
         text = re.sub(r'[^a-zA-Z0-9,.!?]', ' ', text)
-        # 处理标点空格（与GPT的tokenization规则一致）
         text = text.replace(',', ' ,').replace('.', ' .') 
-        # 使用GPT自带的特殊标记格式
         return f"{self.model.decoder.tokenizer.bos_token} {text} {self.model.decoder.tokenizer.eos_token}"
 
     def train(self, setting):
@@ -86,7 +83,6 @@ class Exp_time_caption(object):
                 # captions = torch.cat([bos_tokens, captions], dim=1)
                 # print(captions)
                 # raise KeyboardInterrupt
-                # 模型前向
                 input_caption = captions.input_ids[:, :-1]
                 output_caption = captions.input_ids[:, 1:]
                 # print("input_caption: ", input_caption.shape)
@@ -94,12 +90,11 @@ class Exp_time_caption(object):
                 # print("output_caption: ", output_caption.reshape(-1).shape)
                 # raise KeyboardInterrupt
                 outputs = self.model(x, input_caption)
-                # print("Input Caption Shape:", input_caption.shape)  # 应为 (B, T)
+                # print("Input Caption Shape:", input_caption.shape)
                 # print("Outputs Shape:", outputs.shape)
-                # 计算损失
-                seq_len = x.size(1)  # 获取时间序列的序列长度T
+                seq_len = x.size(1)
                 # print("seq_len: ", seq_len)
-                # logits = outputs.logits[:, seq_len:, :].contiguous()  # 截取后L个位置的logits
+                # logits = outputs.logits[:, seq_len:, :].contiguous()
                 logits = outputs
                 # print(f"output_caption min: {output_caption.min()}, max: {output_caption.max()}")
                 # print(f"logits shape: {logits}")
@@ -113,7 +108,6 @@ class Exp_time_caption(object):
                 # print("outputs: ", logits.shape)
                 # print("outputs: ", captions.input_ids.shape)
                 
-                # 反向传播
                 self.model_optim.zero_grad()
                 train_loss.append(loss.item())
                 loss.backward()
@@ -144,7 +138,6 @@ class Exp_time_caption(object):
             for batch_idx, (x, y) in enumerate(val_loader):
                 x = x.unsqueeze(-1).to(self.device)
                 
-                # 文本预处理
                 captions = self.model.decoder.tokenizer(
                     [self.preprocess_caption(ann) for ann in y], 
                     padding="max_length",
@@ -158,10 +151,8 @@ class Exp_time_caption(object):
                 input_caption = captions.input_ids[:, :-1]
                 output_caption = captions.input_ids[:, 1:]
                 
-                # 模型前向
                 outputs = self.model(x, input_caption)
                 
-                # 计算损失（对齐维度）
                 seq_len = x.size(1)
                 # logits = outputs.logits[:, seq_len:, :].contiguous()
                 logits = outputs
@@ -204,7 +195,6 @@ class Exp_time_caption(object):
                     return_tensors="pt"
                 ).to(self.device)
                 output_caption = captions.input_ids[:, 1:]
-                # 添加检查
                 assert output_caption.min() >= 0 and output_caption.max() < len(self.model.decoder.tokenizer), "Token IDs 越界!"
                 # bos_tokens = torch.full((x.size(0), 1), self.model.decoder.tokenizer.bos_token_id, dtype=torch.long, device=self.model.device)
                 # captions = torch.cat([bos_tokens, captions], dim=1)
@@ -255,13 +245,10 @@ class Exp_time_caption(object):
             
         self.model.eval()
         with torch.no_grad():
-            # 生成token_ids
             token_ids = self.model.generate(x_batch, max_length)
             
-            # 解码为文本
             captions = []
             for ids in token_ids:
-                # 跳过特殊token并解码
                 caption = self.model.decoder.tokenizer.decode(
                     ids.cpu().numpy(),
                     skip_special_tokens=True,
