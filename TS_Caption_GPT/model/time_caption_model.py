@@ -75,46 +75,6 @@ class TimeSeriesEncoder(nn.Module):
         
         return x  # (B, 1, D)
 
-
-class TimeSeriesEncoder1(nn.Module):
-    def __init__(self, input_dim=12, hidden_dim=256):
-        super().__init__()
-        self.value_embedding = nn.Linear(input_dim, hidden_dim)
-
-    def forward(self, x):
-        x = self.value_embedding(x.permute(0, 2, 1))  # (B, 1, D)
-        return x  # (B, 1, D)
-
-class TimeSeriesEncoder2(nn.Module):
-    def __init__(self, input_dim=1, hidden_dim=256, num_layers=3):
-        super().__init__()
-        self.value_embedding = nn.Linear(input_dim, hidden_dim)
-        self.position_embedding = nn.Embedding(512, hidden_dim)
-        
-        encoder_layer = nn.TransformerEncoderLayer(
-            d_model=hidden_dim,
-            nhead=2,
-            dim_feedforward=512,
-            dropout=0.1
-        )
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
-
-    def forward(self, x):
-        # x shape: (batch_size, seq_len, input_dim)
-        batch_size, seq_len, _ = x.shape
-        
-        value_embed = self.value_embedding(x)  # (B, T, D)
-        
-        positions = torch.arange(seq_len, device=x.device).expand(batch_size, seq_len)
-        position_embed = self.position_embedding(positions)  # (B, T, D)
-        
-        embeddings = value_embed + position_embed
-        
-        embeddings = embeddings.permute(1, 0, 2)  # (T, B, D) for transformer
-        encoded = self.transformer_encoder(embeddings)
-        return encoded.permute(1, 0, 2)  # (B, T, D)
-
-
 class CrossModalAttention(nn.Module):
     def __init__(self, embed_dim, num_heads):
         super().__init__()
