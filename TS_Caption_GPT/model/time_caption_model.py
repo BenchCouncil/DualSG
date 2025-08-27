@@ -89,7 +89,7 @@ class TimeSeriesEncoder2(nn.Module):
     def __init__(self, input_dim=1, hidden_dim=256, num_layers=3):
         super().__init__()
         self.value_embedding = nn.Linear(input_dim, hidden_dim)
-        self.position_embedding = nn.Embedding(512, hidden_dim)  # 支持最大512时间步
+        self.position_embedding = nn.Embedding(512, hidden_dim)
         
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=hidden_dim,
@@ -103,17 +103,13 @@ class TimeSeriesEncoder2(nn.Module):
         # x shape: (batch_size, seq_len, input_dim)
         batch_size, seq_len, _ = x.shape
         
-        # 值嵌入
         value_embed = self.value_embedding(x)  # (B, T, D)
         
-        # 位置嵌入
         positions = torch.arange(seq_len, device=x.device).expand(batch_size, seq_len)
         position_embed = self.position_embedding(positions)  # (B, T, D)
         
-        # 合并嵌入
         embeddings = value_embed + position_embed
         
-        # Transformer编码
         embeddings = embeddings.permute(1, 0, 2)  # (T, B, D) for transformer
         encoded = self.transformer_encoder(embeddings)
         return encoded.permute(1, 0, 2)  # (B, T, D)
