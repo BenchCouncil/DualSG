@@ -159,28 +159,24 @@ class TimeAwareGPT2(GPT2LMHeadModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        **kwargs  # 通过kwargs接收自定义参数
+        **kwargs
     ):
-        # 从kwargs中提取time_features
         time_features = kwargs.pop("time_features", None)
         return_dict = kwargs.get("return_dict", self.config.use_return_dict)
         use_cache = kwargs.get("use_cache", self.config.use_cache)
         output_attentions = kwargs.get("output_attentions", self.config.output_attentions)
         output_hidden_states = kwargs.get("output_hidden_states", self.config.output_hidden_states)
 
-        # 处理输入嵌入
         if inputs_embeds is None:
             inputs_embeds = self.transformer.wte(input_ids)
         inputs_embeds = inputs_embeds.permute(1, 0, 2)  # (T, B, D)
 
-        # 处理时间特征
         if time_features is not None:
             time_features = self.time_proj(time_features)
             time_features = time_features.permute(1, 0, 2)
         else:
-            time_features = inputs_embeds  # 生成模式下复用输入嵌入
+            time_features = inputs_embeds
 
-        # 初始化缓存和输出收集
         presents = () if use_cache else None
         all_self_attentions = () if output_attentions else None
         all_hidden_states = () if output_hidden_states else None
@@ -192,7 +188,6 @@ class TimeAwareGPT2(GPT2LMHeadModel):
 
             layer_past = past_key_values[idx] if past_key_values is not None else None
 
-            # 调用Transformer层
             transformer_outputs = transformer_layer(
                 hidden_states,
                 layer_past=layer_past,
@@ -201,7 +196,6 @@ class TimeAwareGPT2(GPT2LMHeadModel):
             )
             hidden_states = transformer_outputs[0]
 
-            # 应用跨模态注意力
             hidden_states = cross_attn(hidden_states, time_features)
 
             if use_cache:
@@ -210,12 +204,10 @@ class TimeAwareGPT2(GPT2LMHeadModel):
             if output_attentions:
                 all_self_attentions += (transformer_outputs[2],)
 
-        # 处理最后的LayerNorm
         hidden_states = self.transformer.ln_f(hidden_states)
         if output_hidden_states:
             all_hidden_states += (hidden_states.permute(1, 0, 2),)
 
-        # 生成logits并调整维度
         logits = self.lm_head(hidden_states).permute(1, 0, 2)  # (B, T, vocab_size)
 
         if not return_dict:
@@ -234,10 +226,10 @@ class Model(nn.Module):
         super().__init__()
         self.args = args
         self.encoder = TimeSeriesEncoder(input_dim=args.input_dim, hidden_dim=args.time_dim)
-        base_config = GPT2Config.from_pretrained('/root/daye/gpt2')
+        base_config = GPT2Config.from_pretrained('gpt2')
         self.decoder = TimeAwareGPT2(base_config, hidden_dim=args.time_dim, d_model=args.text_dim, num_layer=args.num_layer_cross, num_heads=args.n_heads_cross)
         
-        pretrained_dict = torch.load('/root/daye/gpt2/pytorch_model.bin')
+        pretrained_dict = torch.load('gpt2/pytorch_model.bin')
         model_dict = self.decoder.state_dict()
         pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
         model_dict.update(pretrained_dict)
@@ -245,128 +237,28 @@ class Model(nn.Module):
 
 
     def forward(self, x, captions):
-        # 编码时间序列
         time_features = self.encoder(x)  # (batch, seq_len, 256)
         
-        # 文本处理
         outputs = self.decoder(
             input_ids=captions,
             time_features=time_features
         )
         return outputs.logits
 
-    # def generate(self, x, max_length):
-    #     batch_size = x.size(0)
-    #     time_features = self.encoder(x)
-    #     device = x.device
-        
-    #     input_ids = torch.full(
-    #         (batch_size, 1), 
-    #         self.decoder.tokenizer.bos_token_id,
-    #         device=device,
-    #         dtype=torch.long
-    #     )
-
-    #     # 添加注意力掩码
-    #     attention_mask = torch.ones_like(input_ids)
-        
-    #     for _ in range(max_length - 1):
-    #         outputs = self.decoder(
-    #             input_ids=input_ids,
-    #             attention_mask=attention_mask,
-    #             time_features=time_features
-    #         )
-            
-    #         next_tokens = torch.argmax(outputs.logits[:, -1, :], dim=-1)
-            
-    #         # 更新注意力掩码
-    #         attention_mask = torch.cat([
-    #             attention_mask,
-    #             torch.ones((batch_size, 1), device=device)
-    #         ], dim=1)
-            
-    #         # 仅对未生成EOS的样本继续生成
-    #         eos_mask = (next_tokens == self.decoder.tokenizer.eos_token_id)
-    #         if eos_mask.all():
-    #             break
-                
-    #         # 对已生成EOS的样本保持原token
-    #         next_tokens = torch.where(
-    #             eos_mask,
-    #             self.decoder.tokenizer.pad_token_id,
-    #             next_tokens
-    #         )
-            
-    #         input_ids = torch.cat([input_ids, next_tokens.unsqueeze(1)], dim=1)
-
-    #     return input_ids
-    
-    
-    # def generate(self, x, max_length, temperature=0.9, top_k=50):
-    #     self.decoder.eval()
-    #     device = x.device
-    #     batch_size = x.size(0)
-
-    #     # 初始化输入和完成标记
-    #     input_ids = torch.full(
-    #         (batch_size, 1), 
-    #         self.decoder.tokenizer.bos_token_id,
-    #         device=device,
-    #         dtype=torch.long
-    #     )
-    #     finished = torch.zeros(batch_size, dtype=torch.bool, device=device)
-        
-    #     for _ in range(max_length - 1):
-    #         if finished.all():
-    #             break
-                
-    #         # 创建注意力掩码
-    #         attention_mask = torch.ones_like(input_ids) * (~finished).unsqueeze(1)
-            
-    #         outputs = self.decoder(
-    #             input_ids=input_ids,
-    #             attention_mask=attention_mask,
-    #             time_features=self.encoder(x)
-    #         )
-            
-    #         # 应用温度采样和top-k过滤
-    #         logits = outputs.logits[:, -1, :] / temperature
-    #         if top_k > 0:
-    #             indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
-    #             logits[indices_to_remove] = -float('inf')
-            
-    #         probs = torch.softmax(logits, dim=-1)
-    #         next_tokens = torch.multinomial(probs, num_samples=1).squeeze(1)
-            
-    #         # 更新完成标记
-    #         eos_mask = (next_tokens == self.decoder.tokenizer.eos_token_id)
-    #         finished = finished | eos_mask
-            
-    #         # 对已完成的样本保持当前token不变
-    #         next_tokens = torch.where(finished, self.decoder.tokenizer.pad_token_id, next_tokens)
-            
-    #         input_ids = torch.cat([input_ids, next_tokens.unsqueeze(1)], dim=1)
-
-    #     # return self._decode_captions(input_ids.cpu().numpy())
-    #     return input_ids
-
     def generate(self, x, max_length, temperature=0.9, top_k=50):
         self.decoder.eval()
         device = x.device
         batch_size = x.size(0)
         
-        # 获取禁止的起始token列表
         forbidden_words = ["end", "middle", "beginning", "is", "at", "the", "in", "from", "ends", "starts"]
         # forbidden_words = ["in"]
         forbidden_tokens = self.decoder.tokenizer.convert_tokens_to_ids(forbidden_words)
         
-        # 添加特殊符号的检查（根据实际tokenizer情况补充）
         forbidden_tokens += [
-            self.decoder.tokenizer.eos_token_id,  # 避免首词是结束符
+            self.decoder.tokenizer.eos_token_id,
             self.decoder.tokenizer.pad_token_id
         ]
         
-        # 初始化输入和完成标记
         input_ids = torch.full(
             (batch_size, 1), 
             self.decoder.tokenizer.bos_token_id,
@@ -379,7 +271,6 @@ class Model(nn.Module):
             if finished.all():
                 break
                 
-            # 创建注意力掩码
             attention_mask = torch.ones_like(input_ids) * (~finished).unsqueeze(1)
             
             outputs = self.decoder(
@@ -388,21 +279,16 @@ class Model(nn.Module):
                 time_features=self.encoder(x)
             )
             
-            # 应用温度采样和top-k过滤
             logits = outputs.logits[:, -1, :] / temperature
             
-            # 首词过滤机制
-            if step == 0:  # 第一个生成的token
-                # 创建mask矩阵
+            if step == 0:
                 forbid_mask = torch.zeros_like(logits, dtype=torch.bool)
                 for token in forbidden_tokens:
                     forbid_mask |= (torch.arange(logits.size(-1), device=device) == token)
                 
-                # 将禁止token的概率设为负无穷
                 logits = logits.masked_fill(forbid_mask, -float('inf'))
             
             if top_k > 0:
-                # 保持原有top-k逻辑
                 top_k_logits = torch.topk(logits, top_k)
                 indices_to_remove = logits < top_k_logits.values[..., -1, None]
                 logits[indices_to_remove] = -float('inf')
@@ -410,11 +296,9 @@ class Model(nn.Module):
             probs = torch.softmax(logits, dim=-1)
             next_tokens = torch.multinomial(probs, num_samples=1).squeeze(1)
             
-            # 更新完成标记
             eos_mask = (next_tokens == self.decoder.tokenizer.eos_token_id)
             finished = finished | eos_mask
             
-            # 对已完成的样本保持当前token不变
             next_tokens = torch.where(finished, self.decoder.tokenizer.pad_token_id, next_tokens)
             
             input_ids = torch.cat([input_ids, next_tokens.unsqueeze(1)], dim=1)
