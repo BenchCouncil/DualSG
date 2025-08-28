@@ -128,7 +128,7 @@ class Model(nn.Module):
         
         self.num_channels = configs.enc_in 
         self.weight = nn.Parameter(
-            torch.ones(self.num_channels, configs.pred_len) * 0.5,  # 初始化权重矩阵
+            torch.ones(self.num_channels, configs.pred_len) * 0.5,
             requires_grad=True
         )
         # Encoder
@@ -161,36 +161,28 @@ class Model(nn.Module):
         
         # llm model
         if configs.llm_model == 'LLAMA2':
-            llama2_path = '/root/daye/Llama-2-7b-hf'
-            # self.llama_config = LlamaConfig.from_pretrained('/mnt/alps/modelhub/pretrained_model/LLaMA/7B_hf/')
+            llama2_path = 'Llama-2-7b-hf'
             self.llama_config = LlamaConfig.from_pretrained(llama2_path, attn_implementation="eager")
             self.llama_config.num_hidden_layers = configs.llm_layers
             self.llama_config.output_attentions = True
             self.llama_config.output_hidden_states = True
             try:
                 self.llm_model = LlamaModel.from_pretrained(
-                    # "/mnt/alps/modelhub/pretrained_model/LLaMA/7B_hf/",
                     llama2_path,
-                    # trust_remote_code=True,
                     local_files_only=True,
                     config=self.llama_config,
-                    # device_map="auto"
-                    # load_in_4bit=True
                 )
             except EnvironmentError:  # downloads model from HF is not already done
                 print("Local model files not found. Attempting to download...")
                 self.llm_model = LlamaModel.from_pretrained(
-                    # "/mnt/alps/modelhub/pretrained_model/LLaMA/7B_hf/",
                     llama2_path,
                     # trust_remote_code=True,
                     local_files_only=False,
                     config=self.llama_config,
                     # device_map="auto"
-                    # load_in_4bit=True
                 )
             try:
                 self.tokenizer = LlamaTokenizer.from_pretrained(
-                    # "/mnt/alps/modelhub/pretrained_model/LLaMA/7B_hf/tokenizer.model",
                     llama2_path,
                     # trust_remote_code=True,
                     local_files_only=True
@@ -206,11 +198,10 @@ class Model(nn.Module):
             llm_dim = self.llm_model.config.hidden_size
         elif configs.llm_model == 'LLAMA3':
             # Automatically load the configuration, model, and tokenizer for LLaMA-3-8B
-            llama3_path = "/root/daye/Llama-3.2-3B"
+            llama3_path = "Llama-3.2-3B"
             cache_path = "./"
 
             # Load the configuration with custom adjustments
-            # self.config =  LlamaConfig.from_pretrained(llama3_path,token=self.hug_token,cache_dir=cache_path)
             self.config =  LlamaConfig.from_pretrained(llama3_path)
 
             self.config.num_hidden_layers = configs.llm_layers
@@ -227,7 +218,7 @@ class Model(nn.Module):
             # self.tokenizer = AutoTokenizer.from_pretrained(llama3_path,use_auth_token=self.hug_token,cache_dir=cache_path)
             self.tokenizer = AutoTokenizer.from_pretrained(llama3_path)
         elif configs.llm_model == 'GPT2':
-            gpt2_path = '/root/daye/gpt2'
+            gpt2_path = 'gpt2'
             self.gpt2_config = GPT2Config.from_pretrained(gpt2_path, attn_implementation="eager")
 
             self.gpt2_config.num_hidden_layers = configs.llm_layers
@@ -268,7 +259,7 @@ class Model(nn.Module):
                     # device_map="auto"
                 )
         elif configs.llm_model == 'Deepseek':
-            qwen_path = '/root/daye/DeepSeek-R1-Distill-Qwen-1.5B'
+            qwen_path = 'DeepSeek-R1-Distill-Qwen-1.5B'
             self.qwen_config = AutoConfig.from_pretrained(qwen_path)
 
             self.qwen_config.num_hidden_layers = configs.llm_layers
@@ -303,7 +294,7 @@ class Model(nn.Module):
                     local_files_only=False
                 )
         elif configs.llm_model == 'QWEN':
-            qwen25_path = '/root/daye/Qwen2.5-3B'
+            qwen25_path = 'Qwen2.5-3B'
             self.qwen25_config = AutoConfig.from_pretrained(qwen25_path)
 
             self.qwen25_config.num_hidden_layers = configs.llm_layers
@@ -338,7 +329,7 @@ class Model(nn.Module):
                     local_files_only=False
                 )
         elif configs.llm_model == 'BERT':
-            bert_path = '/root/daye/bert-base-uncased'
+            bert_path = 'bert-base-uncased'
             self.bert_config = BertConfig.from_pretrained(bert_path)
 
             self.bert_config.num_hidden_layers = configs.llm_layers
@@ -410,16 +401,10 @@ class Model(nn.Module):
             assert n_vars1 == n_vars2 == n_vars3, "Mismatch in number of variables"
 
             # Select appropriate patches from each
-            # print("enc3: ", enc3.shape)
             enc3_part = enc3[:, :self.k3, :]  # Front-most
             start_idx = (self.num_patches2 - self.k2) // 2
             enc2_part = enc2[:, start_idx:start_idx+self.k2, :]  # Middle
             enc1_part = enc1[:, -self.k1:, :]  # End
-            
-            # print("enc3_part: ", enc3_part.shape)
-            # print("enc2_part: ", enc2_part.shape)
-            # print("enc1_part: ", enc1_part.shape)
-            # raise ValueError
 
             # Concatenate in temporal order: front (32,16) -> middle (16,8) -> end (8,4)
             if self.k1 == 0:
@@ -514,17 +499,13 @@ class Model(nn.Module):
         
         output = []
         for b in range(batchsize):
-            # 提取第一个时间步的前4个通道 (shape: [4])
             first = x_mark_enc[b, 0, :4]
-            # 提取最后一个时间步的前4个通道 (shape: [4])
             last = x_mark_enc[b, -1, :4]
             
-            # 格式化为字符串 (保留4位小数)
             first_str = ", ".join([f"{v:.4f}" for v in first.tolist()])
             last_str = ", ".join([f"{v:.4f}" for v in last.tolist()])
             combined_str = f"{first_str}; {last_str}"
             
-            # 复制七次形成 (7,) 的列表
             batch_row = [combined_str] * 7
             output.append(batch_row)
         
@@ -559,18 +540,6 @@ class Model(nn.Module):
                 
                 trend = "upward" if x[-1] > x[0] else "downward"
                 
-                # corrs = []
-                # for k in range(1, l):
-                #     x_lagged = x[k:]
-                #     x_original = x[:-k]
-                #     if len(x_lagged) == 0 or len(x_original) == 0:
-                #         continue
-                #     corr = self.pearson_corr(x_lagged, x_original)
-                #     corrs.append((k, corr.item()))
-                
-                # sorted_corrs = sorted(corrs, key=lambda x: abs(x[1]), reverse=True)
-                # top5_lags = [k for k, _ in sorted_corrs[:5]]
-                
                 stats_str = (
                     f"Input statistics: min value {min_val:.4f}, max value {max_val:.4f}, "
                     f"median value {median_val:.4f}, the trend is {trend}, "
@@ -603,8 +572,6 @@ class Model(nn.Module):
             x_enc /= stdev
 
             dec_out = self.forecast(x_enc, x_mark_enc, x_dec, x_mark_dec)
-            # print("dec_out: ", dec_out.shape)
-            # raise KeyboardInterrupt
             # process text
             batch_size, num_channels = dec_out.size(0), dec_out.size(2)
             flattened_captions = [captions[b][c] for b in range(batch_size) for c in range(num_channels)]
@@ -621,7 +588,7 @@ class Model(nn.Module):
                 with torch.no_grad():
                     outputs = self.llm_model(
                         **inputs,
-                        use_cache=False  # 禁用缓存节省显存
+                        use_cache=False
                     )
                 last_hidden = outputs.last_hidden_state
                 
@@ -636,7 +603,6 @@ class Model(nn.Module):
                 ).input_ids.to(x_enc.device)
                 last_hidden = self.llm_model.get_input_embeddings()(inputs.to(x_enc.device))            
             
-            # 应用池化
             if self.pool_type == "avg":
                 pooled = last_hidden.mean(dim=1)
             elif self.pool_type == "max":
@@ -645,37 +611,25 @@ class Model(nn.Module):
                 pooled = last_hidden.min(dim=1).values
             else:
                 raise ValueError(f"Unsupported pool type: {self.pool_type}")
-            # print("pooled: ", pooled.shape)
-            # raise KeyboardInterrupt
-            # reshape dim
+
             caption_emb = pooled.view(batch_size, num_channels, -1)  # [B, C, d_model]
             
             # project time dim
             caption_vectors = self.caption_proj(caption_emb)  # [B, C, L]
             caption_vectors = norm(caption_vectors)
             
-            # print("caption_vectors: ", caption_vectors.shape)
-            # raise KeyboardInterrupt
             if self.args.text_cd:
                 caption_vectors = self.channel_fusion(caption_vectors)
                 caption_vectors = norm(caption_vectors)
             
-            # print("caption_vectors: ", caption_vectors.shape)
-            # raise KeyboardInterrupt
-            # reshape dec_out
             dec_out_transposed = dec_out.permute(0, 2, 1)  # [B, C, L]
             
             # learn weight
-            # weight = torch.sigmoid(self.weight)  # limited 0-1
-            # combined = (1 - weight) * dec_out_transposed + weight * caption_vectors
             weight = torch.sigmoid(self.weight).unsqueeze(0)  # [1, C, L]
 
             dec_out = (1 - weight) * dec_out_transposed + weight * caption_vectors
 
-            # dec_out = self.project(dec_out)
             dec_out = dec_out.permute(0, 2, 1)
-            # print("result: ", result.shape)
-            # raise KeyboardInterrupt
 
             dec_out = dec_out * \
                   (stdev[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
