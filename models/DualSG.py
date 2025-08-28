@@ -493,7 +493,6 @@ class Model(nn.Module):
     def prompt_embed3(self, x_mark_enc):
         batchsize, l, channel = x_mark_enc.shape
         
-        # 确保通道数足够
         if channel < 4:
             raise ValueError("Input tensor must have at least 4 channels")
         
