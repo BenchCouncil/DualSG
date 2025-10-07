@@ -49,10 +49,10 @@ bash DualSG/scripts/DualSG/DualSG_ETTh1.sh
 If you find our work helpful, please consider citing us:
 
 ```bibtex
-@inproceedings{da2025dualsg,
+@inproceedings{ding2025dualsg,
   title={DualSG: A Dual-Stream Explicit Semantic-Guided Multivariate Time Series Forecasting Framework},
-  author={Kuiye Ding and Fanda Fan and Yao Wang and Ruijie jian and Xiaorui Wang and Luqi Gong and Yishan Jiang and Chunjie Luo and Jianfeng Zhan},
-  booktitle={ACM International Conference on Multimedia (MM)},
+  author={Ding, Kuiye and Fan, Fanda and Wang, Yao and Wang, Xiaorui and Gong, Luqi and Jiang, Yishan and Luo, Chunjie and Zhan, Jianfeng and others},
+  booktitle={arXiv preprint arXiv:2507.21830},
   year={2025}
 }
 ```
