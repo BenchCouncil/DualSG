@@ -51,8 +51,9 @@ If you find our work helpful, please consider citing us:
 ```bibtex
 @inproceedings{ding2025dualsg,
   title={DualSG: A Dual-Stream Explicit Semantic-Guided Multivariate Time Series Forecasting Framework},
-  author={Ding, Kuiye and Fan, Fanda and Wang, Yao and Wang, Xiaorui and Gong, Luqi and Jiang, Yishan and Luo, Chunjie and Zhan, Jianfeng and others},
-  booktitle={arXiv preprint arXiv:2507.21830},
+  author={Ding, Kuiye and Fan, Fanda and Wang, Yao and Jian, Ruijie and Wang, Xiaorui and Gong, Luqi and Jiang, Yishan and Luo, Chunjie and Zhan, Jianfeng},
+  booktitle={Proceedings of the 33rd ACM International Conference on Multimedia},
+  pages={508--517},
   year={2025}
 }
 ```
