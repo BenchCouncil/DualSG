@@ -56,8 +56,6 @@ Long-term Forecasting
 bash DualSG/scripts/DualSG/DualSG_ETTh1.sh
 ```
 
-
-
 # Citation
 If you find our work helpful, please consider citing us:
 
