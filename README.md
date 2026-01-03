@@ -9,7 +9,7 @@
 
 This is the official implementation of our paper:  **DualSG: A Dual-Stream Explicit Semantic-Guided Multivariate Time Series Forecasting Framework**
 
-![Framework](./idea.png)
+<img src="./ideas.png" alt="Framework" width="400">
 
 > Multivariate Time Series Forecasting (MTSF) is fundamental to many real-world applications. Recent studies leverage Large Language Models (LLMs) for MTSF, but treating them as end-to-end forecasters often sacrifices numerical precision, while latent-space alignment between text and time series remains challenging. We propose **DualSG**, a dual-stream framework that uses LLMs as **semantic guidance modules** rather than standalone predictors. DualSG introduces **Time Series Caption**, an explicit natural-language summary of temporal patterns, providing interpretable context for LLMs. A caption-guided fusion module further captures inter-variable dependencies with reduced noise and computation. Experiments across diverse datasets show consistent improvements over 15 state-of-the-art methods.
 
